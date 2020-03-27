@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- <script src="https://npmcdn.com/vue/dist/vue.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="vuepract.css" />
+    <link rel="stylesheet" href="css/foundation.min.css" />
+  </head>
+  <body>
+    <!-- <script src="app.js"></script> -->
+
+    <div id="app">
+      <section class="row">
+        <div class="small-4 columns">
+          <h1 class="text-center">ME</h1>
+          <div class="healthbar">
+            <div
+              class="healthbar text-center"
+              style="background-color: green; margin: 0em; color: rgb(5, 5, 5);"
+              :style="{width: playerHealth + '%'}"
+            >
+              {{ playerHealth }}
+            </div>
+          </div>
+        </div>
+        <div class="small-3 columns">
+          <h1 class="text-center">CORONA VIRUS</h1>
+          <div class="healthbar">
+            <div
+              class="healthbar text-center"
+              style="background-color: green; margin: 0em; color: rgb(245, 6, 26);"
+              :style="{width: monsterHealth + '%'}"
+            >
+              {{ monsterHealth }}
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="row controls" v-if="!gameIsRunning">
+        <div class="small-12 columns">
+          <button id="start-game" @click="startGame">START NEW GAME</button>
+        </div>
+      </section>
+      <section class="row controls" v-else>
+        <div class="small-12 columns">
+          <button id="attack" @click="attack">ATTACK</button>
+          <button id="special-attack" @click="specialAttack">SPECIAL ATTACK</button>
+          <button id="heal" @click="heal">HEAL</button>
+          <button id="give-up" @click="giveUp">GIVE UP</button>
+        </div>
+      </section>
+      <section class="row log">
+        <div class="small-12 columns">
+          <ul>
+            <li v-for="turn in turns" 
+                :class="{'player-turn': turn.isPlayer, 'monster-turn': !turn.isPlayer}">
+              {{ turn.text}}
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      new Vue({
+        el: '#app',
+        data: {
+          playerHealth: 100,
+          monsterHealth: 100,
+          gameIsRunning: false,
+          turns: []
+        },
+        methods: {
+          startGame: function() {
+            this.gameIsRunning = true;
+            this.playerHealth = 100;
+            this.monsterHealth = 100;
+            this.turns = [];
+          },
+          attack: function() {
+            var damage = this.calculateDamage(3, 10);
+          this.monsterHealth -= damage;
+          this.turns.unshift({
+            isPlayer: true,
+            text: 'Kanayo Hits COVID-19 for ' + damage
+          })
+          if (this.checkWin()) {
+            return;
+          }
+            this.monsterAttacks();
+
+        },
+        specialAttack: function() {
+          var damage = this.calculateDamage(10, 20);
+          this.monsterHealth -= damage;
+          this.turns.unshift({
+            isPlayer: true,
+            text: 'Kanayo Hits COVID-19 Very Hard for ' + damage
+          })
+          if (this.checkWin()) {
+            return;
+          }
+          this.monsterAttacks();
+        },
+        heal: function() {
+          if (this.playerHealth <= 90) {
+            this.playerHealth += 10;
+          } else {
+            this.playerHealth = 100;
+          }
+          this.turns.unshift({
+            isPlayer: true,
+            text: 'Kanayo goes to Hospital for 10'
+          })
+          this.monsterAttacks();
+        },
+        giveUp: function() {
+          this.gameIsRunning = false;
+        },
+        monsterAttacks: function() {
+          var damage = this.calculateDamage(5, 10);
+          this.playerHealth -= damage;
+          this.checkWin();
+          this.turns.unshift({
+            isPlayer: false,
+            text: 'COVID-19 Hits Kanayo for ' + damage
+          })
+        },
+        calculateDamage: function(min, max) {
+          return Math.max(Math.floor(Math.random() * max) + 1, min);
+        },
+        checkWin: function() {
+          if (this.monsterHealth <= 0) {
+            if (confirm('YOU Defeated COVID-19! New Game?')) {
+              this.startGame();
+            } else {
+              this.gameIsRunning = false;
+            }
+              return;
+            } else if (this.playerHealth <= 0) {
+            if (confirm('I never loose!! New Game')) {
+              this.startGame();
+            } else {
+              this.gameIsRunning = false;
+            }
+            }
+        }
+        }
+      })
+    </script>
+  </body>
+</html>
